@@ -1,8 +1,13 @@
+import { useDispatch, useSelector } from 'react-redux';
 import { Input } from './Filter.styled'
+import { setContactsFilter } from 'redux/filterSlice';
+import { getContacts, getFilter } from 'redux/selectors';
 
-export function Filter({ filter, setFilter }) {
+export function Filter() {
+  const dispatch = useDispatch();
+  
   const handleFilterChange = (evt) => {
-    setFilter(evt.target.value);
+    dispatch(setContactsFilter(evt.target.value));
   };
 
   return (
@@ -10,8 +15,9 @@ export function Filter({ filter, setFilter }) {
       type="text"
       name="filter"
       placeholder="Search by name"
-      value={filter}
+      value={useSelector(getFilter)}
       onChange={handleFilterChange}
+      disabled={useSelector(getContacts).length === 0}
     />
   );
 }

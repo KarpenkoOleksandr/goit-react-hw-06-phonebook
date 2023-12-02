@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { nanoid } from 'nanoid';
 import { Form, Input, Button, Text } from './ContactForm.styled';
+import { useDispatch, useSelector } from 'react-redux';
+import Notiflix from 'notiflix';
+import { addContact } from 'redux/contactsSlice';
 
-export const ContactForm = ({addContact}) => {
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts);
   
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
@@ -19,17 +23,39 @@ export const ContactForm = ({addContact}) => {
     event.preventDefault();
     if (name.trim() === '' || number.trim() === '') {
       return;
-    } 
+    }
 
- const newContact = {
-      id: nanoid(),
-      name: name.trim(),
-      number: number.trim(),
-    };
-    addContact(newContact);
+    const isContactExist = contacts.find(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (isContactExist) {
+      Notiflix.Report.warning(
+        'Alert',
+        `Contact with name ${name} already exists!`,
+        'Ok'
+      );
+      return;
+    }
+
+    const isNumberExist = contacts.find(
+      contact => contact.number.replace(/\D/g, '') === number.replace(/\D/g, '')
+    );
+
+    if (isNumberExist) {
+      Notiflix.Report.warning(
+        'Alert',
+        `Number ${number} is already in contacts!`,
+        'Ok'
+      );
+      return;
+    }
+
+    dispatch(addContact(name, number));
     setName('');
     setNumber('');
   };
+
     return (
       <Form onSubmit={handleSubmit}>
         <Text>Name</Text>
